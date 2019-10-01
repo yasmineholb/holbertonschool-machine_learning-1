@@ -94,7 +94,7 @@ class NeuralNetwork:
         """
         dz2 = A2 - Y
         self.__W2 -= alpha * np.dot(dz2, A1.T) / A1.shape[1]
-        self.__b2 -= alpha * dz2.mean(axis=1)
+        self.__b2 -= alpha * dz2.mean(axis=1, keepdims=True)
         dz1 = np.dot(self.__W2.T, dz2) * A1 * (1 - A1)
         self.__W1 -= alpha * np.dot(dz1, X.T) / X.shape[1]
-        self.__b1 = self.__b1 - alpha * dz1.mean(axis=1, keepdims=True)
+        self.__b1 -= alpha * dz1.mean(axis=1, keepdims=True)
