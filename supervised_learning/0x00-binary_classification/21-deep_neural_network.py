@@ -93,7 +93,7 @@ class DeepNeuralNetwork:
         prevact = self.cache["A" + str(self.__L - 1)]
         self.__weights[Wstr] -= (np.dot(dz, prevact.T)
                                  * alpha / prevact.shape[1])
-        self.__weights["b" + str(self.__L)] -= dz.mean(axis=1) * alpha
+        self.__weights["b" + str(self.__L)] -= dz.mean(axis=1, keepdims=True) * alpha
         for layer in range(self.__L - 1, 0, -1):
             curact = cache["A" + str(layer)]
             dz = np.dot(self.__weights[Wstr].T, dz) * curact * (1 - curact)
