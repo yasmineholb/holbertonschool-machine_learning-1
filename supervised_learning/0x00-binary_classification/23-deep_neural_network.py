@@ -126,19 +126,21 @@ class DeepNeuralNetwork:
         while itrcount <= iterations:
             if verbose and not (itrcount % step):
                 print("Cost after {} iterations: {}"
-                      .format(itrcount, self.cost(Y, self.forward_prop(X))))
+                      .format(itrcount, self.cost(Y, self.forward_prop(X)[0])))
             if graph and not (itrcount % step):
-                losses.append(self.cost(Y, self.__A))
+                losses.append(self.cost(Y, self.__cache["A" + str(self.__L)]))
                 graphx.append(itrcount)
             self.gradient_descent(Y, self.forward_prop(X)[1], alpha)
             itrcount += 1
         itrcount -= 1
         if verbose and itrcount % step:
             print("Cost after {} iterations: {}"
-                  .format(itrcount, self.cost(Y, self.__A)))
+                  .format(itrcount, self.cost(Y, self.__cache["A" +
+                                                              str(self.__L)])))
         if graph:
             if itrcount % step:
-                losses.append(self.cost(Y, self.__A))
+                losses.append(self.cost(Y, self.cache["A" +
+                                                      str(self.__L)]))
                 graphx.append(itrcount)
             plt.plot(graphx, losses, "b-")
             plt.xlabel("iteration")
