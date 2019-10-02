@@ -61,8 +61,7 @@ class NeuralNetwork:
         """
         self.__A1 = np.dot(self.__W1, X) + self.__b1
         self.__A1 = 1 / (1 + np.exp(-1 * self.__A1))
-        self.__A2 = (np.dot(self.__W2, self.__A1) +
-                     self.__b2)
+        self.__A2 = np.dot(self.__W2, self.__A1) + self.__b2
         self.__A2 = 1 / (1 + np.exp(-1 * self.__A2))
         return self.__A1, self.__A2
 
@@ -95,6 +94,6 @@ class NeuralNetwork:
         dz2 = A2 - Y
         self.__W2 -= alpha * np.dot(dz2, A1.T) / A1.shape[1]
         self.__b2 -= alpha * dz2.mean(axis=1, keepdims=True)
-        dz1 = np.matmul(self.__W2.T, dz2) * A1 * (1 - A1)
+        dz1 = np.dot(self.__W2.T, dz2) * A1 * (1 - A1)
         self.__W1 -= alpha * np.dot(dz1, X.T) / X.shape[1]
         self.__b1 -= alpha * dz1.mean(axis=1, keepdims=True)
