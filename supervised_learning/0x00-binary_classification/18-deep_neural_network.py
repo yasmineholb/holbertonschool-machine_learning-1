@@ -59,6 +59,6 @@ class DeepNeuralNetwork:
             cura = "A" + str(layer + 1)
             preva = "A" + str(layer)
             z = (np.dot(self.__weights[curw], self.__cache[preva]) +
-                 self.__weights[curb] * self.__cache[preva].shape[1])
+                 self.__weights[curb])
             self.__cache[cura] = 1 / (1 + np.exp(-z))
         return self.__cache["A" + str(self.__L)], self.__cache

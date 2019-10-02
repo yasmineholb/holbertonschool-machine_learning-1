@@ -59,7 +59,7 @@ class DeepNeuralNetwork:
             cura = "A" + str(layer + 1)
             preva = "A" + str(layer)
             z = (np.dot(self.__weights[curw], self.__cache[preva]) +
-                 self.__weights[curb] * self.__cache[preva].shape[1])
+                 self.__weights[curb])
             self.__cache[cura] = 1 / (1 + np.exp(-z))
         return self.__cache["A" + str(self.__L)], self.__cache
 
@@ -100,7 +100,7 @@ class DeepNeuralNetwork:
             Wstr = "W" + str(layer)
             bstr = "b" + str(layer)
             prevact = self.cache["A" + str(layer - 1)]
-            self.__weights[Wstr] -= (np.dot(dz, prevact.T)
+            self.__weights[Wstr] -= (np.matmul(dz, prevact.T)
                                      * alpha / prevact.shape[1])
             self.__weights[bstr] -= dz.mean(axis=1, keepdims=True) * alpha
 
@@ -115,8 +115,6 @@ class DeepNeuralNetwork:
         if alpha <= 0:
             raise ValueError("alpha must be positive")
         while iterations > 0:
-            print(iterations)
-            print(self.evaluate(X, Y))
             self.gradient_descent(Y, self.forward_prop(X)[1], alpha)
             iterations -= 1
         return self.evaluate(X, Y)
