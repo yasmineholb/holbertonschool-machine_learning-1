@@ -1,68 +1,103 @@
 #!/usr/bin/env python3
-"""Simple neuron class"""
+"""Simple neural network class"""
 
 
 import numpy as np
-import matplotlib.pyplot as plt
 
-class Neuron:
-    """Simple neuron class"""
 
-    def __init__(self, nx):
-        """nx: number of input features"""
+class NeuralNetwork:
+    """Simple neural network class"""
+
+    def __init__(self, nx, nodes):
+        """
+        nx: number of input features
+        nodes: number of hidden layer nodes
+        """
         if type(nx) is not int:
             raise TypeError("nx must be an integer")
         if nx < 1:
             raise ValueError("nx must be a positive integer")
-        self.__W = np.ndarray((1, nx))
-        self.__W[0] = np.random.normal(size=nx)
-        self.__b = 0
-        self.__A = 0
+        if type(nodes) is not int:
+            raise TypeError("nodes must be an integer")
+        if nodes < 1:
+            raise ValueError("nodes must be a positive integer")
+        self.__W1 = np.ndarray((nodes, nx))
+        self.__W1 = np.random.normal(size=(nodes, nx))
+        self.__W2 = np.ndarray((1, nodes))
+        self.__W2[0] = np.random.normal(size=nodes)
+        self.__b1 = np.zeros((nodes, 1))
+        self.__b2 = 0
+        self.__A1 = 0
+        self.__A2 = 0
 
     @property
-    def W(self):
-        """Return weights"""
-        return self.__W
+    def W1(self):
+        return self.__W1
 
     @property
-    def b(self):
-        """Return bias"""
-        return self.__b
+    def W2(self):
+        return self.__W2
 
     @property
-    def A(self):
-        """Return activation values"""
-        return self.__A
+    def b1(self):
+        return self.__b1
+
+    @property
+    def b2(self):
+        return self.__b2
+
+    @property
+    def A1(self):
+        return self.__A1
+
+    @property
+    def A2(self):
+        return self.__A2
 
     def forward_prop(self, X):
-        """Update and return sigmoid activation values"""
         """
-        self.__A = np.zeros((1, X.shape[1]))
-        for ex in range(X.shape[1]):
-            expsum = 0
-            for feat in range(X.shape[0]):
-                expsum += self.__W[0][feat] * X[feat][ex] + self.__b
-            self.__A[0][ex] = 1 / (1 + np.exp(-1 * expsum))
+        Calculate forward propagation for neural network
+        X: input data
         """
-        self.__A = 1 / (1 + np.exp(-1 * (np.dot(self.__W, X) + self.__b)))
-        return self.__A
+        self.__A1 = np.dot(self.__W1, X) + self.__b1
+        self.__A1 = 1 / (1 + np.exp(-1 * self.__A1))
+        self.__A2 = (np.dot(self.__W2, self.__A1) +
+                     self.__b2)
+        self.__A2 = 1 / (1 + np.exp(-1 * self.__A2))
+        return self.__A1, self.__A2
 
     def cost(self, Y, A):
-        """Calculate cost using logistic regression"""
-        costsum = 0
+        """
+        Calculate cost of the neural network
+        Y: Correct labels
+        A: Activation predictions.
+        """
         return -(Y * np.log(A) + (1 - Y) * np.log(1.0000001 - A)).mean()
 
     def evaluate(self, X, Y):
-        """Evaluate neuron's predictions"""
-        self.__A = np.ndarray((1, X.shape[1]))
-        self.__A[0] = self.forward_prop(X)
-        return np.round(self.__A).astype(int), self.cost(Y, self.__A)
+        """
+        Evaluate the neural network.
+        X: Input data
+        Y: Correct labels
+        """
+        return (self.forward_prop(X)[1].round().astype(int),
+                self.cost(Y, self.__A2))
 
-    def gradient_descent(self, X, Y, A, alpha=0.05):
-        """Update neuron's weights and bias"""
-        self.__W[0] = (self.__W[0] - alpha *
-                       np.dot(X, (A - Y).T).T[0] / X.shape[1])
-        self.__b -= alpha * (A[0] - Y[0]).mean()
+    def gradient_descent(self, X, Y, A1, A2, alpha=0.05):
+        """
+        Perform a gradient descent step on neural network
+        X: Input data
+        Y: Correct labels
+        A1: hidden layer activations
+        A2: output layer activations
+        alpha: learning rate
+        """
+        dz2 = A2 - Y
+        self.__W2 -= alpha * np.dot(dz2, A1.T) / A1.shape[1]
+        self.__b2 -= alpha * dz2.mean(axis=1, keepdims=True)
+        dz1 = np.dot(self.__W2.T, dz2) * A1 * (1 - A1)
+        self.__W1 -= alpha * np.dot(dz1, X.T) / X.shape[1]
+        self.__b1 -= alpha * dz1.mean(axis=1, keepdims=True)
 
     def train(self, X, Y, iterations=5000, alpha=0.05, verbose=True,
               graph=True, step=100):
@@ -90,7 +125,7 @@ class Neuron:
             if graph and not (itrcount % step):
                 losses.append(self.cost(Y, self.__A))
                 graphx.append(itrcount)
-            self.gradient_descent(X, Y, self.forward_prop(X), alpha)
+            self.gradient_descent(X, Y, *self.forward_prop(X), alpha)
             itrcount += 1
         itrcount -= 1
         if verbose and itrcount % step:
