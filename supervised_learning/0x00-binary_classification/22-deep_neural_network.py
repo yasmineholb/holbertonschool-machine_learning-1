@@ -90,17 +90,12 @@ class DeepNeuralNetwork:
         """
         dz = {self.__L: cache["A" + str(self.__L)] - Y}
         Wstr = "W" + str(self.__L)
-        prevact = self.cache["A" + str(self.__L - 1)]
-        self.__weights[Wstr] -= (np.dot(dz[self.__L], prevact.T)
-                                 * alpha / prevact.shape[1])
-        self.__weights["b" + str(self.__L)] -= (dz[self.__L].mean(axis=1)
-                                                * alpha)
         for layer in range(self.__L - 1, 0, -1):
             curact = cache["A" + str(layer)]
             dz[layer] = (np.dot(self.__weights[Wstr].T, dz[layer + 1]) *
                          curact * (1 - curact))
             Wstr = "W" + str(layer)
-        for layer in range(self.__L - 1, 0, -1):
+        for layer in range(self.__L, 0, -1):
             Wstr = "W" + str(layer)
             bstr = "b" + str(layer)
             prevact = self.cache["A" + str(layer - 1)]
