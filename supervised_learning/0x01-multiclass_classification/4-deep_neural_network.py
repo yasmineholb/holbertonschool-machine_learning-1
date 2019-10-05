@@ -3,13 +3,13 @@
 
 
 import numpy as np
-import matplotlib.pyplot as plt
+import pickle
 
 
 class DeepNeuralNetwork:
     """Simple deep neural network class"""
 
-    def __init__(self, nx, layers):
+    def __init__(self, nx, layers, activation="sig"):
         """
         nx: number of input features
         layers: list of number of nodes in each layer
@@ -23,7 +23,9 @@ class DeepNeuralNetwork:
         for layer in layers:
             if type(layer) is not int or layer < 1:
                 raise TypeError("layers must be a list of positive integers")
-
+        if activation != "sig" and activation != "tanh":
+            raise ValueError("activation must be 'sig' or 'tanh'")
+        self.__activation = activation
         self.__L = len(layers)
         self.__cache = {}
         self.__weights = {"W1": np.random.randn(layers[0], nx) *
@@ -61,7 +63,15 @@ class DeepNeuralNetwork:
             preva = "A" + str(layer)
             z = (np.dot(self.__weights[curw], self.__cache[preva]) +
                  self.__weights[curb])
-            self.__cache[cura] = 1 / (1 + np.exp(-z))
+            if layer != self.__L - 1:
+                if self.__activation == "sig":
+                    self.__cache[cura] = 1 / (1 + np.exp(-z))
+                if self.__activation == "tanh":
+                    self.__cache[cura] = ((np.exp(z) - np.exp(-z)) /
+                                          (np.exp(z) + np.exp(-z)))
+            else:
+                t = np.exp(z).sum(axis=0, keepdims=True)
+                self.__cache[cura] = np.exp(z) / t
         return self.__cache["A" + str(self.__L)], self.__cache
 
     def cost(self, Y, A):
@@ -70,7 +80,7 @@ class DeepNeuralNetwork:
         Y: Correct labels
         A: Output activation
         """
-        return -(Y * np.log(A) + (1 - Y) * np.log(1.0000001 - A)).mean()
+        return -(Y * np.log(A)).sum() / Y.shape[1]
 
     def evaluate(self, X, Y):
         """
@@ -80,7 +90,8 @@ class DeepNeuralNetwork:
         returns: (predictions, cost)
         """
         A = self.forward_prop(X)[0]
-        return A.round().astype(int), self.cost(Y, A)
+        return (self.one_hot_encode(A.argmax(axis=0), Y.shape[0]),
+                self.cost(Y, A))
 
     def gradient_descent(self, Y, cache, alpha=0.05):
         """
@@ -93,8 +104,12 @@ class DeepNeuralNetwork:
         Wstr = "W" + str(self.__L)
         for layer in range(self.__L - 1, 0, -1):
             curact = cache["A" + str(layer)]
-            dz[layer] = (np.dot(self.__weights[Wstr].T, dz[layer + 1]) *
-                         curact * (1 - curact))
+            if self.__activation == "sig":
+                dz[layer] = (np.dot(self.__weights[Wstr].T, dz[layer + 1]) *
+                             curact * (1 - curact))
+            if self.__activation == "tanh":
+                dz[layer] = (np.dot(self.__weights[Wstr].T, dz[layer + 1]) *
+                             (1 - curact ** 2))
             Wstr = "W" + str(layer)
         for layer in range(self.__L, 0, -1):
             Wstr = "W" + str(layer)
@@ -125,23 +140,49 @@ class DeepNeuralNetwork:
         losses = []
         graphx = []
         while itrcount < iterations:
-            A, cache = self.forward_prop(X)
             if verbose and not (itrcount % step):
                 print("Cost after {} iterations: {}"
-                      .format(itrcount, self.cost(Y, A)))
-            if graph:
-                losses.append(self.cost(Y, A))
+                      .format(itrcount, self.cost(Y, self.forward_prop(X)[0])))
+            if graph and not (itrcount % step):
+                losses.append(self.cost(Y, self.__cache["A" + str(self.__L)]))
                 graphx.append(itrcount)
-            self.gradient_descent(Y, cache, alpha)
+            self.gradient_descent(Y, self.forward_prop(X)[1], alpha)
             itrcount += 1
         self.forward_prop(X)
-        if verbose:
-            print("Cost after {} iterations: {}"
-                  .format(itrcount, self.cost(Y, self.__cache["A" +
-                                                              str(self.__L)])))
+        print("Cost after {} iterations: {}"
+              .format(itrcount, self.cost(Y, self.__cache["A" +
+                                                          str(self.__L)])))
         if graph:
+            if itrcount % step:
+                losses.append(self.cost(Y, self.cache["A" +
+                                                      str(self.__L)]))
+                graphx.append(itrcount)
             plt.plot(graphx, losses, "b-")
             plt.xlabel("iteration")
             plt.ylabel("cost")
             plt.title("Training Cost")
         return self.evaluate(X, Y)
+
+    def save(self, filename):
+        """Save class to .pkl"""
+        if len(filename) < 4 or filename[-4:] != ".pkl":
+            filename += ".pkl"
+        with open(filename, "wb") as outfile:
+            pickle.dump(self, outfile)
+
+    @staticmethod
+    def load(filename):
+        """Load a DeepNeuralNetwork from file"""
+        try:
+            with open(filename, "rb") as infile:
+                return pickle.load(infile)
+        except FileNotFoundError:
+            return None
+
+    @staticmethod
+    def one_hot_encode(Y, classes):
+        """Convert a numeric label vector to a one-hot matrix"""
+        onehot = np.zeros((classes, Y.shape[0]))
+        for ex, label in enumerate(Y):
+            onehot[label][ex] = 1
+        return onehot

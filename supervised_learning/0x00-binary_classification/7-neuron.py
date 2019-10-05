@@ -78,28 +78,26 @@ class Neuron:
         if verbose or graph:
             if type(step) is not int:
                 raise TypeError("step must be an integer")
-            if step < 1:
-                raise ValueError("step must be a positive integer")
+        if step < 1:
+            raise ValueError("step must be a positive integer")
         itrcount = 0
         losses = []
         graphx = []
-        while itrcount <= iterations:
+        while itrcount < iterations:
+            A = self.forward_prop(X)
             if verbose and not (itrcount % step):
                 print("Cost after {} iterations: {}"
-                      .format(itrcount, self.cost(Y, self.forward_prop(X))))
-            if graph and not (itrcount % step):
-                losses.append(self.cost(Y, self.__A))
-                graphx.append(itrcount)
-            self.gradient_descent(X, Y, self.forward_prop(X), alpha)
+                      .format(itrcount, self.cost(Y, A)))
+                if graph:
+                    losses.append(self.cost(Y, A))
+                    graphx.append(itrcount)
+            self.gradient_descent(X, Y, A, alpha)
             itrcount += 1
-        itrcount -= 1
-        if verbose and itrcount % step:
+        self.forward_prop(X)
+        if verbose:
             print("Cost after {} iterations: {}"
                   .format(itrcount, self.cost(Y, self.__A)))
         if graph:
-            if itrcount % step:
-                losses.append(self.cost(Y, self.__A))
-                graphx.append(itrcount)
             plt.plot(graphx, losses, "b-")
             plt.xlabel("iteration")
             plt.ylabel("cost")

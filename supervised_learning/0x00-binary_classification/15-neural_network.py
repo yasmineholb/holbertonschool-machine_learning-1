@@ -3,6 +3,7 @@
 
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class NeuralNetwork:
@@ -118,23 +119,21 @@ class NeuralNetwork:
         itrcount = 0
         losses = []
         graphx = []
-        while itrcount <= iterations:
+        while itrcount < iterations:
+            A1, A2 = self.forward_prop(X)
             if verbose and not (itrcount % step):
                 print("Cost after {} iterations: {}"
-                      .format(itrcount, self.cost(Y, self.forward_prop(X)[1])))
-            if graph and not (itrcount % step):
-                losses.append(self.cost(Y, self.__A2))
+                      .format(itrcount, self.cost(Y, A2)))
+            if graph:
+                losses.append(self.cost(Y, A2))
                 graphx.append(itrcount)
-            self.gradient_descent(X, Y, *self.forward_prop(X), alpha)
+            self.gradient_descent(X, Y, A1, A2, alpha)
             itrcount += 1
-        itrcount -= 1
-        if verbose and itrcount % step:
+        self.forward_prop(X)
+        if verbose:
             print("Cost after {} iterations: {}"
                   .format(itrcount, self.cost(Y, self.__A2)))
         if graph:
-            if itrcount % step:
-                losses.append(self.cost(Y, self.__A2))
-                graphx.append(itrcount)
             plt.plot(graphx, losses, "b-")
             plt.xlabel("iteration")
             plt.ylabel("cost")

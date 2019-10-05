@@ -3,7 +3,7 @@
 
 
 import numpy as np
-import matplotlib.pyplot as plt
+import pickle
 
 
 class DeepNeuralNetwork:
@@ -125,23 +125,41 @@ class DeepNeuralNetwork:
         losses = []
         graphx = []
         while itrcount < iterations:
-            A, cache = self.forward_prop(X)
             if verbose and not (itrcount % step):
                 print("Cost after {} iterations: {}"
-                      .format(itrcount, self.cost(Y, A)))
-            if graph:
-                losses.append(self.cost(Y, A))
+                      .format(itrcount, self.cost(Y, self.forward_prop(X)[0])))
+            if graph and not (itrcount % step):
+                losses.append(self.cost(Y, self.__cache["A" + str(self.__L)]))
                 graphx.append(itrcount)
-            self.gradient_descent(Y, cache, alpha)
+            self.gradient_descent(Y, self.forward_prop(X)[1], alpha)
             itrcount += 1
         self.forward_prop(X)
-        if verbose:
-            print("Cost after {} iterations: {}"
-                  .format(itrcount, self.cost(Y, self.__cache["A" +
-                                                              str(self.__L)])))
+        print("Cost after {} iterations: {}"
+              .format(itrcount, self.cost(Y, self.__cache["A" +
+                                                          str(self.__L)])))
         if graph:
+            if itrcount % step:
+                losses.append(self.cost(Y, self.cache["A" +
+                                                      str(self.__L)]))
+                graphx.append(itrcount)
             plt.plot(graphx, losses, "b-")
             plt.xlabel("iteration")
             plt.ylabel("cost")
             plt.title("Training Cost")
         return self.evaluate(X, Y)
+
+    def save(self, filename):
+        """Save class to .pkl"""
+        if len(filename) < 4 or filename[-4:] != ".pkl":
+            filename += ".pkl"
+        with open(filename, "wb") as outfile:
+            pickle.dump(self, outfile)
+
+    @staticmethod
+    def load(filename):
+        """Load a DeepNeuralNetwork from file"""
+        try:
+            with open(filename, "rb") as infile:
+                return pickle.load(infile)
+        except FileNotFoundError:
+            return None
