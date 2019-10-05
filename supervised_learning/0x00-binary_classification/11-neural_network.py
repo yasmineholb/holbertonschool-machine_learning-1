@@ -59,10 +59,10 @@ class NeuralNetwork:
         Calculate forward propagation for neural network
         X: input data
         """
-        self.__A1 = np.dot(self.__W1, X) + self.__b1 * X.shape[1]
+        self.__A1 = np.dot(self.__W1, X) + self.__b1
         self.__A1 = 1 / (1 + np.exp(-1 * self.__A1))
         self.__A2 = (np.dot(self.__W2, self.__A1) +
-                     self.__b2 * self.__A1.shape[1])
+                     self.__b2)
         self.__A2 = 1 / (1 + np.exp(-1 * self.__A2))
         return self.__A1, self.__A2
 
