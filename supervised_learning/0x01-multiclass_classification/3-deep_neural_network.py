@@ -84,7 +84,7 @@ class DeepNeuralNetwork:
         returns: (predictions, cost)
         """
         A = self.forward_prop(X)[0]
-        return (self.one_hot_encode(A.argmax(axis=0), Y.shape[0]),
+        return (self.one_hot_encode(A.argmax(axis=0), Y.shape[0]).astype(int),
                 self.cost(Y, A))
 
     def gradient_descent(self, Y, cache, alpha=0.05):
