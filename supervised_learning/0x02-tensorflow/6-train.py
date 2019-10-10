@@ -13,7 +13,7 @@ forward_prop = __import__('2-forward_prop').forward_prop
 
 
 def train(X_train, Y_train, X_valid, Y_valid, layer_sizes,
-          activations, alpha, iterations, save_path='/tmp/'):
+          activations, alpha, iterations, save_path='/tmp/model.ckpt'):
     """
     Train our network
     """
@@ -31,25 +31,25 @@ def train(X_train, Y_train, X_valid, Y_valid, layer_sizes,
             trainloss, trainaccuracy = sess.run((loss, accuracy),
                                                 feed_dict={x: X_train,
                                                            y: Y_train})
-            print('    Training Cost:', trainloss)
-            print('    Training Accuracy:', trainaccuracy)
+            print('\tTraining Cost:', trainloss)
+            print('\tTraining Accuracy:', trainaccuracy)
             validloss, validaccuracy = sess.run((loss, accuracy),
                                                 feed_dict={x: X_valid,
                                                            y: Y_valid})
-            print('    Validation Cost:', validloss)
-            print('    Validation Accuracy:', validaccuracy)
+            print('\tValidation Cost:', validloss)
+            print('\tValidation Accuracy:', validaccuracy)
         sess.run(train, feed_dict={x: X_train, y: Y_train})
     if not iterations % 100:
         print('After {} iterations:'.format(iterations))
         trainloss, trainaccuracy = sess.run((loss, accuracy),
                                             feed_dict={x: X_train,
                                                        y: Y_train})
-        print('    Training Cost:', trainloss)
-        print('    Training Accuracy:', trainaccuracy)
+        print('\tTraining Cost:', trainloss)
+        print('\tTraining Accuracy:', trainaccuracy)
         validloss, validaccuracy = sess.run((loss, accuracy),
                                             feed_dict={x: X_valid,
                                                        y: Y_valid})
-        print('    Validation Cost:', validloss)
-        print('    Validation Accuracy:', validaccuracy)
+        print('\tValidation Cost:', validloss)
+        print('\tValidation Accuracy:', validaccuracy)
     saver = tf.train.Saver()
-    return saver.save(sess, save_path + "/model.ckpt")
+    return saver.save(sess, save_path)
