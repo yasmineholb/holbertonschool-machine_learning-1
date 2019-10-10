@@ -139,10 +139,11 @@ class DeepNeuralNetwork:
                 graphx.append(itrcount)
             self.gradient_descent(Y, self.forward_prop(X)[1], alpha)
             itrcount += 1
-        self.forward_prop(X)
-        print("Cost after {} iterations: {}"
-              .format(itrcount, self.cost(Y, self.__cache["A" +
-                                                          str(self.__L)])))
+        if verbose:
+            self.forward_prop(X)
+            print("Cost after {} iterations: {}"
+                  .format(itrcount, self.cost(Y, self.__cache["A" +
+                                                              str(self.__L)])))
         if graph:
             if itrcount % step:
                 losses.append(self.cost(Y, self.cache["A" +
