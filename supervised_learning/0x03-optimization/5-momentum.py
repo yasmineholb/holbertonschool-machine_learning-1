@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Fix comment"""
+"""Update a variable with gradient descent using momentum optimization"""
 
 
 def update_variables_momentum(alpha, beta1, var, grad, v):
-    """Fix comment"""
+    """Update a variable with gradient descent using momentum optimization"""
     return None

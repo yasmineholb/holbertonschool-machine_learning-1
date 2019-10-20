@@ -3,9 +3,8 @@
 
 
 import numpy as np
-import tensorflow as tf
 
 
 def normalization_constants(X):
     """Calculate normalization constants of a matrix"""
-    return None, None
+    return X.mean(axis=0), X.std(axis=0)

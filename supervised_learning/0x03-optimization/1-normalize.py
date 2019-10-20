@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
-"""Fix comment"""
+"""Normalize input data"""
 
 
-def normalize(x):
-    """Fix comment"""
-    return None
+import numpy as np
+
+
+def normalize(X, m, s):
+    """Normalize input data"""
+    return (X - m) / s

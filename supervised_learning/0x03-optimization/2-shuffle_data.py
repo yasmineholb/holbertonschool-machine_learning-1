@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-"""Fix comment"""
+"""Shuffle data in two matrices in the same way"""
 
 
-def shuffle_data(x):
-    """Fix comment"""
-    return None, None
+import numpy as np
+
+
+def shuffle_data(X, Y):
+    """Shuffle data in two matrices in the same way"""
+    shufflidx = np.random.permutation(X.shape[0])
+    return X[shufflidx], Y[shufflidx]
