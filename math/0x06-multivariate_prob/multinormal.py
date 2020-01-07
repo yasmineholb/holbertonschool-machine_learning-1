@@ -26,21 +26,19 @@ class MultiNormal:
                 if row > col:
                     covmat[row][col] = covmat[col][row]
                     continue
-                if row == col:
-                    covmat[row][col] = pow(X[row] - means[row], 2).mean()
-                    continue
-                covmat[row][col] = np.multiply(X[row] - means[row],
-                                               X[col] - means[col]).mean()
+                covmat[row][col] = (np.multiply(X[row] - means[row],
+                                                X[col] - means[col]).sum()
+                                    / (X.shape[1] - 1))
         return means[:, np.newaxis], covmat
 
     def pdf(self, x):
         """Calculate PDF at point x"""
 
         if not isinstance(x, np.ndarray):
-            raise TypeError("x must by a numpy.ndarray")
+            raise TypeError("x must be a numpy.ndarray")
         if ((len(x.shape) != 2 or x.shape[1] != 1
              or x.shape[0] != self.mean.shape[0])):
-            raise ValueError("x mush have the shape ({}, 1)"
+            raise ValueError("x must have the shape ({}, 1)"
                              .format(self.mean.shape[0]))
         centered = x - self.mean
         return (np.exp(np.dot(np.dot(centered.T,

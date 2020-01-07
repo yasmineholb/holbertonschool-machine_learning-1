@@ -18,9 +18,7 @@ def mean_cov(X):
             if row > col:
                 covmat[row][col] = covmat[col][row]
                 continue
-            if row == col:
-                covmat[row][col] = pow(X[:, row] - means[row], 2).mean()
-                continue
-            covmat[row][col] = np.multiply(X[:, row] - means[row],
-                                           X[:, col] - means[col]).mean()
+            covmat[row][col] = (np.multiply(X[:, row] - means[row],
+                                            X[:, col] - means[col]).sum()
+                                / (X.shape[0] - 1))
     return means[np.newaxis, :], covmat
