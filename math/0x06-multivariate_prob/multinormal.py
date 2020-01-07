@@ -20,7 +20,7 @@ class MultiNormal:
     def mean_cov(self, X):
         """Calculate mean and covariance of a data set"""
         means = X.mean(axis=1)
-        covmat = np.ndarray((3, 3))
+        covmat = np.ndarray((X.shape[0], X.shape[0]))
         for row in range(X.shape[0]):
             for col in range(X.shape[0]):
                 if row > col:

@@ -12,7 +12,8 @@ def mean_cov(X):
     if X.shape[0] < 2:
         raise ValueError("X must contain multiple data points")
     means = X.mean(axis=0)
-    covmat = np.ndarray((3, 3))
+    covmat = np.ndarray((X.shape[1], X.shape[1]))
+    print(X.shape)
     for row in range(X.shape[1]):
         for col in range(X.shape[1]):
             if row > col:
