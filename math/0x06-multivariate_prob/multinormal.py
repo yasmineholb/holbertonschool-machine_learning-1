@@ -31,8 +31,23 @@ class MultiNormal:
                     continue
                 covmat[row][col] = np.multiply(X[row] - means[row],
                                                X[col] - means[col]).mean()
-        return means, covmat
+        return means[:, np.newaxis], covmat
 
     def pdf(self, x):
         """Calculate PDF at point x"""
-        return None
+
+        if not isinstance(x, np.ndarray):
+            raise TypeError("x must be a numpy.ndarray")
+        if ((len(x.shape) != 2 or x.shape[1] != 1
+             or x.shape[0] != self.mean.shape[0])):
+            raise ValueError("x must have the shape ({}, 1)"
+                             .format(self.mean.shape[0]))
+        print("x", x)
+        print("mean", self.mean)
+        centered = x - self.mean
+        print(centered)
+        return (np.exp(np.multiply(np.multiply(centered.T,
+                                               np.linalg.inv(self.cov)),
+                                   centered) / -2) /
+                np.sqrt(pow(2 * np.pi, self.mean.shape[0])
+                        * np.linalg.det(self.cov)))
