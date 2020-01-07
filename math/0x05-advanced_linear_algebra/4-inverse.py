@@ -9,7 +9,7 @@ def inverse(matrix):
     if origin_deter == 0:
         return None
     return sclr_mult_matrix(origin_adjugate, 1 / origin_deter)
-    
+
 
 def adjugate(matrix):
     """Find adjugate matrix of a square list matrix"""

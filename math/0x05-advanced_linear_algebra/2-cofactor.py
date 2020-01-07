@@ -3,6 +3,7 @@
 
 
 def cofactor(matrix):
+    """Find cofactor matrix of a square list matrix"""
     minors = minor(matrix)
     return [[minors[row][col] * pow(-1, row) * pow(-1, col)
             for col in range(len(minors))] for row in range(len(minors))]
