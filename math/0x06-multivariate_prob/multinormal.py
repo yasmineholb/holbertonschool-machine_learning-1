@@ -37,10 +37,10 @@ class MultiNormal:
         """Calculate PDF at point x"""
 
         if not isinstance(x, np.ndarray):
-            raise TypeError("x must be a numpy.ndarray")
+            raise TypeError("x must by a numpy.ndarray")
         if ((len(x.shape) != 2 or x.shape[1] != 1
              or x.shape[0] != self.mean.shape[0])):
-            raise ValueError("x must have the shape ({}, 1)"
+            raise ValueError("x mush have the shape ({}, 1)"
                              .format(self.mean.shape[0]))
         centered = x - self.mean
         return (np.exp(np.dot(np.dot(centered.T,
