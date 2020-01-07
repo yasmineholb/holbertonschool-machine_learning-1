@@ -42,12 +42,9 @@ class MultiNormal:
              or x.shape[0] != self.mean.shape[0])):
             raise ValueError("x must have the shape ({}, 1)"
                              .format(self.mean.shape[0]))
-        print("x", x)
-        print("mean", self.mean)
         centered = x - self.mean
-        print(centered)
-        return (np.exp(np.multiply(np.multiply(centered.T,
-                                               np.linalg.inv(self.cov)),
-                                   centered) / -2) /
+        return (np.exp(np.dot(np.dot(centered.T,
+                                     np.linalg.inv(self.cov)),
+                              centered) / -2) /
                 np.sqrt(pow(2 * np.pi, self.mean.shape[0])
-                        * np.linalg.det(self.cov)))
+                        * np.linalg.det(self.cov)))[0, 0]
