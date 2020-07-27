@@ -1,1 +1,0 @@
-#### Convolution and pooling projects
